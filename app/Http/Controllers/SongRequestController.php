@@ -47,4 +47,12 @@ class SongRequestController extends Controller
 
         return response()->json($song, 201);
     }
+
+    public function destroy($id): \Illuminate\Http\JsonResponse
+    {
+        $song = Song::findOrFail($id);
+        $song->delete();
+
+        return response()->json(['message' => 'Song deleted']);
+    }
 }

@@ -1,4 +1,6 @@
-import { Head } from "@inertiajs/react";
+
+import {useState} from "react";
+import axios from "axios";
 
 export interface Song {
     id: number;
@@ -15,13 +17,25 @@ interface Props {
     songs: Song[];
 }
 
-export default function SongPanel({ songs }: Props) {
+export default function SongPanel({ songs: initialSongs }: Props) {
+
+    const [songs, setSongs] = useState<Song[]>(initialSongs);
+
+    const handleDelete = async (id: number) => {
+        try {
+            await axios.delete(`/api/songs/${id}`);
+            setSongs((prev) => prev.filter((song) => song.id !== id));
+        } catch (error) {
+            console.error("Failed to delete song", error);
+        }
+    };
+
     return (
         <>
             <div className="dark min-h-screen bg-gray-900 text-white">
                 <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-6">
                     <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-6">
-                        <h1 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Song Queue Admin
+                        <h1 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">🎵 Song Queue Admin
                             Panel</h1>
                         {songs.length === 0 ? (
                             <p className="text-gray-600 dark:text-gray-400">No songs have been added yet.</p>
@@ -54,6 +68,14 @@ export default function SongPanel({ songs }: Props) {
                                                 </div>
                                             </div>
                                         </td>
+                                        <td className="py-2 text-right">
+                                            <button
+                                                onClick={() => handleDelete(song.id)}
+                                                className="text-sm px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg transition"
+                                            >
+                                                Delete
+                                            </button>
+                                        </td>
                                     </tr>
                                 ))}
                                 </tbody>
@@ -62,6 +84,6 @@ export default function SongPanel({ songs }: Props) {
                     </div>
                 </div>
             </div>
-        </>
-    );
-}
+            </>
+            );
+            }
