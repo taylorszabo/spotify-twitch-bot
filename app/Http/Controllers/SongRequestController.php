@@ -35,9 +35,13 @@ class SongRequestController extends Controller
         $song = Song::create([
             'spotify_id' => $track['id'],
             'title' => $track['name'],
-            'artist' => $track['artists'][0]['name'],
+            'artist' => $track['artist'],
             'uri' => $track['uri'],
+            'album' => $track['album'],
+            'album_image' => $track['album_image'],
+            'release_year' => $track['release_year'],
         ]);
+
 
         $spotify->addToQueue($song->uri);
 

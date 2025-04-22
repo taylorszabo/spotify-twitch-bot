@@ -19,8 +19,23 @@ class SpotifyService
             'limit' => 1,
         ]);
 
-        return $response->json()['tracks']['items'][0] ?? null;
+        $track = $response->json()['tracks']['items'][0] ?? null;
+
+        if (!$track) {
+            return null;
+        }
+
+        return [
+            'id' => $track['id'],
+            'name' => $track['name'],
+            'artist' => $track['artists'][0]['name'],
+            'uri' => $track['uri'],
+            'album' => $track['album']['name'],
+            'album_image' => $track['album']['images'][0]['url'] ?? null,
+            'release_year' => substr($track['album']['release_date'], 0, 4),
+        ];
     }
+
 
     public function addToQueue($uri)
     {

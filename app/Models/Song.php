@@ -10,5 +10,9 @@ class Song extends Model
         'title',
         'artist',
         'uri',
+        'album',
+        'album_image',
+        'release_year',
     ];
+
 }
