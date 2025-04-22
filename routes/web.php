@@ -1,27 +1,36 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use Illuminate\Foundation\Application;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
+use App\Services\SpotifyService;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
+Route::get('/login/spotify', function () {
+    $query = http_build_query([
+        'client_id' => config('services.spotify.client_id'),
+        'response_type' => 'code',
+        'redirect_uri' => config('services.spotify.redirect_uri'),
+        'scope' => 'user-modify-playback-state',
     ]);
+
+    return redirect("https://accounts.spotify.com/authorize?$query");
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/callback/spotify', function (Request $request, SpotifyService $spotify) {
+    $response = Http::asForm()->post('https://accounts.spotify.com/api/token', [
+        'grant_type' => 'authorization_code',
+        'code' => $request->code,
+        'redirect_uri' => config('services.spotify.redirect_uri'),
+        'client_id' => config('services.spotify.client_id'),
+        'client_secret' => config('services.spotify.client_secret'),
+    ]);
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    $spotify->storeAccessToken(
+        $response['access_token'],
+        $response['expires_in']
+    );
+
+    return redirect('/')->with('success', 'Spotify linked!');
 });
 
-require __DIR__.'/auth.php';
+
