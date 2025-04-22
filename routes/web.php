@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\SongAdminController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
@@ -32,5 +33,7 @@ Route::get('/callback/spotify', function (Request $request, SpotifyService $spot
 
     return redirect('/')->with('success', 'Spotify linked!');
 });
+
+Route::get('/admin/songs', [SongAdminController::class, 'index'])->name('admin.songs');
 
 
