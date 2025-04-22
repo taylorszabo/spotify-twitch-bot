@@ -45,11 +45,10 @@ class SpotifyService
             ->post('https://api.spotify.com/v1/me/player/queue?uri=' . urlencode($uri));
     }
 
-    public function playTrack(string $uri)
+    public function playUris(array $uris)
     {
         $token = $this->getAccessToken();
 
-        // Get active device
         $deviceResponse = Http::withToken($token)->get('https://api.spotify.com/v1/me/player/devices');
         $devices = $deviceResponse->json()['devices'] ?? [];
 
@@ -62,9 +61,8 @@ class SpotifyService
 
         $deviceId = $activeDevice['id'];
 
-
         $payload = [
-            'uris' => [$uri],
+            'uris' => $uris,
         ];
 
         $response = Http::withToken($token)
@@ -73,7 +71,7 @@ class SpotifyService
             ])
             ->put("https://api.spotify.com/v1/me/player/play?device_id={$deviceId}", $payload);
 
-        \Log::info('Play single URI', [
+        \Log::info('Play multiple URIs', [
             'device_id' => $deviceId,
             'payload' => $payload,
             'status' => $response->status(),
@@ -82,6 +80,7 @@ class SpotifyService
 
         return $response;
     }
+
 
     public function getAccessToken()
     {

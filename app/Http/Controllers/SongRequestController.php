@@ -58,16 +58,26 @@ class SongRequestController extends Controller
 
     public function play($id, SpotifyService $spotify): \Illuminate\Http\JsonResponse
     {
-        $song = Song::findOrFail($id);
+        $songs = Song::all();
 
-        $response = $spotify->playTrack($song->uri);
-
-        if ($response->successful()) {
-            return response()->json(['message' => 'Track is now playing']);
+        $selected = $songs->firstWhere('id', $id);
+        if (!$selected) {
+            return response()->json(['error' => 'Song not found'], 404);
         }
 
-        return response()->json(['error' => 'Unable to play track'], $response->status());
-    }
+        $uris = $songs
+            ->where('id', '!=', $id)
+            ->pluck('uri')
+            ->prepend($selected->uri)
+            ->unique()
+            ->values()
+            ->toArray();
 
+        $response = $spotify->playUris($uris);
+
+        return $response->successful()
+            ? response()->json(['message' => 'Now playing from selected song.'])
+            : response()->json(['error' => 'Unable to play track list'], $response->status());
+    }
 
 }
