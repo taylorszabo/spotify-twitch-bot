@@ -45,6 +45,43 @@ class SpotifyService
             ->post('https://api.spotify.com/v1/me/player/queue?uri=' . urlencode($uri));
     }
 
+    public function playTrack(string $uri)
+    {
+        $token = $this->getAccessToken();
+
+        // Get active device
+        $deviceResponse = Http::withToken($token)->get('https://api.spotify.com/v1/me/player/devices');
+        $devices = $deviceResponse->json()['devices'] ?? [];
+
+        $activeDevice = collect($devices)->firstWhere('is_active', true)
+            ?? collect($devices)->first();
+
+        if (!$activeDevice || !isset($activeDevice['id'])) {
+            return response()->json(['error' => 'No active Spotify device found'], 404);
+        }
+
+        $deviceId = $activeDevice['id'];
+
+
+        $payload = [
+            'uris' => [$uri],
+        ];
+
+        $response = Http::withToken($token)
+            ->withHeaders([
+                'Content-Type' => 'application/json',
+            ])
+            ->put("https://api.spotify.com/v1/me/player/play?device_id={$deviceId}", $payload);
+
+        \Log::info('Play single URI', [
+            'device_id' => $deviceId,
+            'payload' => $payload,
+            'status' => $response->status(),
+            'body' => $response->body(),
+        ]);
+
+        return $response;
+    }
 
     public function getAccessToken()
     {

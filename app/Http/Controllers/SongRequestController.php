@@ -55,4 +55,19 @@ class SongRequestController extends Controller
 
         return response()->json(['message' => 'Song deleted']);
     }
+
+    public function play($id, SpotifyService $spotify): \Illuminate\Http\JsonResponse
+    {
+        $song = Song::findOrFail($id);
+
+        $response = $spotify->playTrack($song->uri);
+
+        if ($response->successful()) {
+            return response()->json(['message' => 'Track is now playing']);
+        }
+
+        return response()->json(['error' => 'Unable to play track'], $response->status());
+    }
+
+
 }

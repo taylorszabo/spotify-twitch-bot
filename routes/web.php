@@ -11,7 +11,7 @@ Route::get('/login/spotify', function () {
         'client_id' => config('services.spotify.client_id'),
         'response_type' => 'code',
         'redirect_uri' => config('services.spotify.redirect_uri'),
-        'scope' => 'user-modify-playback-state',
+        'scope' => 'user-read-playback-state user-modify-playback-state',
     ]);
 
     return redirect("https://accounts.spotify.com/authorize?$query");

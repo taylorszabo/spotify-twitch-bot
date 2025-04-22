@@ -30,6 +30,14 @@ export default function SongPanel({ songs: initialSongs }: Props) {
         }
     };
 
+    const handlePlay = async (id: number) => {
+        try {
+            await axios.post(`/api/songs/${id}/play`);
+        } catch (error) {
+            console.error("Failed to play song", error);
+        }
+    };
+
     return (
         <>
             <div className="dark min-h-screen bg-gray-900 text-white">
@@ -69,6 +77,12 @@ export default function SongPanel({ songs: initialSongs }: Props) {
                                             </div>
                                         </td>
                                         <td className="py-2 text-right">
+                                            <button
+                                                onClick={() => handlePlay(song.id)}
+                                                className="text-sm px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-lg transition"
+                                            >
+                                                ▶️ Play
+                                            </button>
                                             <button
                                                 onClick={() => handleDelete(song.id)}
                                                 className="text-sm px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg transition"
