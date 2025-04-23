@@ -38,10 +38,7 @@ export default function SongPanel({ songs: initialSongs }: Props) {
 
     useEffect(() => {
         const channel = echo.channel("spotify");
-
         channel.listen(".QueueUpdated", async (event: QueueUpdatedEvent) => {
-            console.log("🎉 Received QueueUpdated event:", event.queue);
-
             try {
                 const res = await axios.post<Song[]>("/api/songs/from-uris", {
                     uris: event.queue,
