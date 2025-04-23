@@ -13,15 +13,12 @@ export interface Song {
     release_year: string;
 }
 
-interface Props {
-    songs: Song[];
-}
 
 interface QueueUpdatedEvent {
     queue: string[];
 }
 
-export default function SongPanel({ songs: initialSongs }: Props) {
+export default function SongPanel() {
     const [songs, setSongs] = useState<Song[]>([]);
     useEffect(() => {
         const fetchQueue = async () => {
