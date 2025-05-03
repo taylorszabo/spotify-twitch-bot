@@ -114,13 +114,51 @@ class SpotifyService
         });
     }
 
-    public function getAccessToken()
+    public function getAccessToken(): ?string
     {
-        return Cache::get('spotify_access_token');
+        $token = Cache::get('spotify_access_token');
+
+        if ($token) {
+            return $token;
+        }
+
+        \Log::info('Access token missing. Attempting to refresh...');
+        return $this->refreshAccessToken();
     }
+
+
 
     public function storeAccessToken($accessToken, $expiresIn): void
     {
         Cache::put('spotify_access_token', $accessToken, $expiresIn);
     }
+
+    public function refreshAccessToken(): ?string
+    {
+        $refreshToken = Cache::get('spotify_refresh_token');
+
+        if (!$refreshToken) {
+            \Log::warning('No refresh token found');
+            return null;
+        }
+
+        $response = Http::asForm()->post('https://accounts.spotify.com/api/token', [
+            'grant_type' => 'refresh_token',
+            'refresh_token' => $refreshToken,
+            'client_id' => config('services.spotify.client_id'),
+            'client_secret' => config('services.spotify.client_secret'),
+        ]);
+
+        if (!$response->ok()) {
+            \Log::error('Failed to refresh Spotify token', ['body' => $response->body()]);
+            return null;
+        }
+
+        $data = $response->json();
+
+        $this->storeAccessToken($data['access_token'], $data['expires_in']);
+
+        return $data['access_token'];
+    }
+
 }

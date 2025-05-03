@@ -56,9 +56,17 @@ export default function SongPanel() {
             <div className="dark min-h-screen bg-gray-900 text-white">
                 <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-6">
                     <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 shadow-xl rounded-2xl p-6">
-                        <h1 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">
-                            🎵 Song Queue Admin Panel
-                        </h1>
+                        <div className="flex justify-between items-center mb-4">
+                            <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
+                                Song Queue Admin Panel
+                            </h1>
+                            <a
+                                href="/login/spotify"
+                                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition"
+                            >
+                                Login with Spotify
+                            </a>
+                        </div>
                         {songs.length === 0 ? (
                             <p className="text-gray-600 dark:text-gray-400">
                                 No songs have been added yet.

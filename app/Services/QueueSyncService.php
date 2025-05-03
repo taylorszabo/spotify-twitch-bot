@@ -11,9 +11,11 @@ class QueueSyncService
 {
     public function sync(): void
     {
+
         $token = Cache::get('spotify_access_token');
 
         if (!$token) {
+
             Log::warning('Spotify token missing; cannot sync queue.');
             return;
         }

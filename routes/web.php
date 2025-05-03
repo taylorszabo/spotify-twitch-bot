@@ -26,12 +26,13 @@ Route::get('/callback/spotify', function (Request $request, SpotifyService $spot
         'client_secret' => config('services.spotify.client_secret'),
     ]);
 
-    $spotify->storeAccessToken(
-        $response['access_token'],
-        $response['expires_in']
-    );
+    $data = $response->json();
 
-    return redirect('/')->with('success', 'Spotify linked!');
+    $spotify->storeAccessToken($data['access_token'], $data['expires_in']);
+
+    if (isset($data['refresh_token'])) {
+        Cache::put('spotify_refresh_token', $data['refresh_token']);
+    }
 });
 
 Route::get('/admin/songs', [SongAdminController::class, 'index'])->name('admin.songs');
