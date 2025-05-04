@@ -3,7 +3,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc && vite build",
-    "dev": "vite"
+    "dev": "concurrently \"vite\" \"php -S localhost:8000 -t public\" \"php artisan schedule:work\" \"node twitch-bot/bot.js\""
   },
   "devDependencies": {
     "@headlessui/react": "^2.0.0",

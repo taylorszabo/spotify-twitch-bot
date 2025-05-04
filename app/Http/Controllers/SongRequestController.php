@@ -43,7 +43,6 @@ class SongRequestController extends Controller
             'release_year' => $track['release_year'],
         ]);
 
-
         $spotify->addToQueue($song->uri);
 
         return response()->json($song, 201);

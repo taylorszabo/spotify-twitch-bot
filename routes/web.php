@@ -35,6 +35,37 @@ Route::get('/callback/spotify', function (Request $request, SpotifyService $spot
     }
 });
 
+Route::get('/login/twitch', function () {
+    $query = http_build_query([
+        'client_id' => config('services.twitch.client_id'),
+        'redirect_uri' => config('services.twitch.redirect_uri'),
+        'response_type' => 'code',
+        'scope' => 'chat:read chat:edit',
+    ]);
+
+    return redirect("https://id.twitch.tv/oauth2/authorize?$query");
+});
+
+Route::get('/callback/twitch', function (Request $request) {
+    $code = $request->code;
+
+    $response = Http::asForm()->post('https://id.twitch.tv/oauth2/token', [
+        'client_id' => config('services.twitch.client_id'),
+        'client_secret' => config('services.twitch.client_secret'),
+        'code' => $code,
+        'grant_type' => 'authorization_code',
+        'redirect_uri' => config('services.twitch.redirect_uri'),
+    ]);
+
+    $data = $response->json();
+
+    Cache::put('twitch_access_token', $data['access_token'], $data['expires_in']);
+    Cache::put('twitch_refresh_token', $data['refresh_token']);
+
+    return redirect('/')->with('success', 'Twitch connected!');
+});
+
 Route::get('/admin/songs', [SongAdminController::class, 'index'])->name('admin.songs');
+
 
 
