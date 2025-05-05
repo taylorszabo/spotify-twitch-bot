@@ -41,8 +41,11 @@ class SpotifyService
     {
         $token = $this->getAccessToken();
 
-        return Http::withToken($token)
-            ->post('https://api.spotify.com/v1/me/player/queue?uri=' . urlencode($uri));
+        $response = Http::withToken($token)
+            ->post("https://api.spotify.com/v1/me/player/queue?uri={$uri}");
+
+
+        return $response;
     }
 
     public function playUris(array $uris)
